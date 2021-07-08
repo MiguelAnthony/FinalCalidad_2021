@@ -1,0 +1,96 @@
+﻿@{
+    Layout = null;
+    
+    var nota = (List<Nota>)Model;
+
+}
+
+
+    @foreach (var item in nota)
+    {
+
+        <div class="container-fluid">
+            <ul class="list-group">
+                <li class="list-group-item">
+                    <a href="/Nota_/Detalle?Id=@item.Id"><strong>@item.Titulo</strong></a>
+                    <br />
+                    <span>
+                        <strong>Contenido: </strong>
+                        @if (item.Contenido.Length > 50)
+                        {
+                            <parcial>@item.Contenido.Substring(0, 50) ...</parcial>
+                        }
+                        else
+                        {
+                            <parcial>@item.Contenido</parcial>
+                        }
+                    </span>
+
+                    <div align="right">
+                        <a href="/Nota_/Eliminar?id=@item.Id" style="margin-left:20px;" class="btn btn-outline-danger float-lg-right">Eliminar</a>
+                        <button id="editModal" style="margin-right:20px;" class="btn btn-outline-primary float-lg-right" href="#" data-toggle="modal" data-target="#edit" onclick="selCuenta(@item.Id,'@item.Titulo','@item.Contenido')">Editar</button>
+                    </div>
+                </li>
+            </ul>
+            <br />
+        </div>
+    }
+
+
+
+
+<div class="modal fade" id="edit" tabindex="-1" aria-labelledby="edit" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Editar Nota</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="editNotita">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="submitForm()">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    function selCuenta(id, titulo, contenido) {
+        $('#mtxtId').val(id);
+        $('#mtxtTitulo').val(titulo);
+        $('#mtxtContenido').val(contenido);
+    };
+
+    $.ajax({
+        url: '/Nota_/Edit',
+        type: 'get'
+    }).done(function (html) {
+        $('#editNotita').html(html);
+    })
+
+    function submitForm() {
+        $('#editNota').submit();
+    }
+
+    function editar(event) {
+        event.preventDefault();
+        var dataString = new FormData($('#edit form')[0]);
+        $.ajax({
+            url: "/Nota_/Edit",
+            type: "post",
+            processData: false,  // Important!
+            contentType: false,
+            cache: false,
+            data: dataString
+        }).done(function (html) {
+            location.reload();
+        }).fail(function (html) {
+            $('#editNotita').html(html.responseText);
+        });
+    }
+</script>
